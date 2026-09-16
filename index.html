@@ -119,6 +119,53 @@
       border-color: rgba(var(--primary-rgb), 0.8) !important;
       box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.25);
     }
+
+    /* Print Specific Styling for CV Document */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        font-size: 11pt !important;
+      }
+      header, footer, nav, #hero, #hakkimda, #projeler, #blog, #iletisim, #modalOverlay, .no-print {
+        display: none !important;
+      }
+      #cvModalOverlay {
+        position: static !important;
+        display: block !important;
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        backdrop-filter: none !important;
+        z-index: 99999 !important;
+      }
+      #cvModalOverlay > div {
+        border: none !important;
+        box-shadow: none !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        border-radius: 0 !important;
+        background: #ffffff !important;
+      }
+      #cvModalPaper {
+        box-shadow: none !important;
+        border: none !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        max-height: none !important;
+        overflow: visible !important;
+      }
+      #cvModalToolbar {
+        display: none !important;
+      }
+      a {
+        text-decoration: none !important;
+        color: #0f172a !important;
+      }
+    }
   </style>
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -231,11 +278,17 @@
       </div>
       <nav class="hidden md:flex items-center gap-md" data-active-classes="bg-surface-container-high text-on-surface font-body-bold px-md py-sm rounded-xl">
         <a class="text-on-surface-variant hover:text-on-surface font-body-base transition-colors px-md py-sm" data-path="hakkimda" data-i18n="nav_about" href="#hakkimda">Hakkımda</a>
+        <a class="text-on-surface-variant hover:text-on-surface font-body-base transition-colors px-md py-sm" data-path="deneyim" data-i18n="nav_experience" href="#deneyim">Deneyim &amp; Eğitim</a>
         <a class="text-on-surface-variant hover:text-on-surface font-body-base transition-colors px-md py-sm" data-path="projeler" data-i18n="nav_projects" href="#projeler">Projeler</a>
         <a class="text-on-surface-variant hover:text-on-surface font-body-base transition-colors px-md py-sm" data-path="blog" data-i18n="nav_blog" href="#blog">Blog</a>
         <a class="text-on-surface-variant hover:text-on-surface font-body-base transition-colors px-md py-sm" data-path="iletisim" data-i18n="nav_contact" href="#iletisim">İletişim</a>
       </nav>
       <div class="flex items-center gap-sm">
+        <!-- CV / Özgeçmiş Belgesi Butonu -->
+        <button onclick="openCvModal()" id="navCvBtn" aria-label="Özgeçmiş Belgesini Görüntüle" title="Özgeçmiş Belgesini (CV) İncele" class="flex items-center gap-1.5 px-3 h-8 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary font-body-bold text-code-badge transition-all duration-200 cursor-pointer shadow-sm active:scale-95" type="button">
+          <span class="material-symbols-outlined text-[16px]">description</span>
+          <span data-i18n="nav_cv">CV</span>
+        </button>
         <!-- Dil Değiştirme Butonu (TR / EN) -->
         <button id="langToggleBtn" aria-label="Dili Değiştir / Switch Language" title="Switch to English" class="px-2.5 h-8 rounded-xl bg-surface-container hover:bg-surface-container-high flex items-center justify-center font-code-badge text-code-badge text-primary hover:text-on-surface transition-all duration-200 cursor-pointer shadow-sm" type="button">
           <span id="langLabel" class="font-bold">EN</span>
@@ -256,9 +309,14 @@
     <!-- Mobile dropdown navigation menu -->
     <div id="mobileNavMenu" class="hidden md:hidden px-4 pb-4 pt-2 bg-surface border-b border-surface-container-high flex-col gap-2">
       <a class="block py-2 text-on-surface-variant hover:text-on-surface font-body-base" data-path="hakkimda" data-i18n="nav_about" href="#hakkimda">Hakkımda</a>
+      <a class="block py-2 text-on-surface-variant hover:text-on-surface font-body-base" data-path="deneyim" data-i18n="nav_experience" href="#deneyim">Deneyim &amp; Eğitim</a>
       <a class="block py-2 text-on-surface-variant hover:text-on-surface font-body-base" data-path="projeler" data-i18n="nav_projects" href="#projeler">Projeler</a>
       <a class="block py-2 text-on-surface-variant hover:text-on-surface font-body-base" data-path="blog" data-i18n="nav_blog" href="#blog">Blog</a>
       <a class="block py-2 text-on-surface-variant hover:text-on-surface font-body-base" data-path="iletisim" data-i18n="nav_contact" href="#iletisim">İletişim</a>
+      <button onclick="openCvModal(); const mn = document.getElementById('mobileNavMenu'); if(mn) mn.classList.add('hidden');" class="w-full text-left py-2 text-primary font-body-bold flex items-center gap-2" type="button">
+        <span class="material-symbols-outlined text-[18px]">description</span>
+        <span data-i18n="nav_cv_long">Özgeçmiş Belgesi (CV)</span>
+      </button>
       <div class="pt-2 border-t border-surface-container flex items-center justify-between">
         <span class="font-code-sm text-code-sm text-on-surface-variant" data-i18n="mobile_lang_desc">Dil / Language:</span>
         <button id="mobileLangToggleBtn" class="px-3 py-1 rounded-lg bg-surface-container-high font-code-badge text-primary text-code-badge">TR / EN</button>
@@ -270,32 +328,42 @@
     <div class="max-w-max-container mx-auto px-gutter-mobile lg:px-gutter-desktop py-lg">
       <div class="flex flex-col w-full">
         <!-- 1. HERO SECTION -->
-        <section class="relative pt-6 pb-20 md:py-24 flex flex-col items-start justify-center overflow-hidden" id="hero">
+        <section class="relative pt-6 pb-20 md:py-24 flex flex-col items-start justify-center" id="hero">
           <!-- Ambient subtle luminous glow backdrop -->
           <div class="absolute -top-16 -left-16 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
           <div class="absolute top-1/3 -right-20 w-80 h-80 bg-secondary/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
-          <div class="w-full flex flex-col-reverse md:flex-row items-start md:items-center justify-between gap-10">
+          <div class="w-full flex flex-col-reverse md:flex-row items-start md:items-center justify-between gap-10 overflow-visible">
             <div class="flex-1 flex flex-col items-start">
-              <!-- Status Radar Pill -->
-              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high/80 backdrop-blur-md shadow-sm mb-6">
-                <span class="relative flex h-2 w-2">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span>
-                </span>
-                <span class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider" data-i18n="hero_status">Açık kaynak &amp; yeni projelere açık 🚀</span>
+              <!-- Status Radar Pill & Apache Spark Contributor Badge -->
+              <div class="flex flex-wrap items-center gap-2.5 mb-6">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high/80 backdrop-blur-md shadow-sm">
+                  <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span>
+                  </span>
+                  <span class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider" data-i18n="hero_status">Açık kaynak &amp; yeni projelere açık 🚀</span>
+                </div>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/25 shadow-sm text-primary font-code-badge text-code-badge font-semibold">
+                  <span class="material-symbols-outlined text-[15px]">bolt</span>
+                  <span data-i18n="hero_spark_badge">Apache Spark Contributor (Huawei)</span>
+                </div>
               </div>
               <h1 class="font-display-hero text-display-hero-mobile md:text-display-hero text-on-surface tracking-tight mb-2">
                 <span data-i18n="hero_greeting">Merhaba, Ben</span> <span class="text-primary">Sümeyra Altaş</span>
               </h1>
               <p class="font-h2 text-h2-mobile md:text-h2 text-primary-fixed-dim font-medium mb-4" data-i18n="hero_role">
-                Bilgisayar Mühendisi &amp; Yazılım Geliştirici
+                Bilgisayar Mühendisi | Apache Spark &amp; Dağıtık Sistemler
               </p>
               <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl leading-relaxed mb-8" data-i18n="hero_bio">
-                Modern web teknolojileri, backend sistemleri ve mobil uygulamalar geliştiren bilgisayar mühendisi. Temiz kod, mimari tasarım ve sezgisel kullanıcı deneyimine odaklanıyorum.
+                Huawei bünyesinde açık kaynaklı Apache Spark ekosistemi üzerinde optimizasyon ve test mimarileri geliştiren; kurumsal Java/Spring Boot ve dağıtık büyük veri çözümlerinde uzmanlaşan Bilgisayar Mühendisi.
               </p>
               <!-- CTA Buttons -->
-              <div class="flex flex-wrap items-center gap-4 mb-8">
-                <a class="px-5 py-2.5 rounded-xl bg-primary text-on-primary font-body-bold text-body-base hover:bg-primary-container transition-all duration-200 shadow-md hover:-translate-y-0.5 active:scale-95 flex items-center gap-2" href="#projeler">
+              <div class="flex flex-wrap items-center gap-3.5 mb-8">
+                <button onclick="openCvModal()" class="px-5 py-2.5 rounded-xl bg-primary text-on-primary font-body-bold text-body-base hover:bg-primary-container transition-all duration-200 shadow-md hover:-translate-y-0.5 active:scale-95 flex items-center gap-2 cursor-pointer">
+                  <span class="material-symbols-outlined text-[20px]">description</span>
+                  <span data-i18n="hero_btn_cv">Özgeçmişi İncele (CV)</span>
+                </button>
+                <a class="px-5 py-2.5 rounded-xl bg-surface-container-high text-on-surface font-body-bold text-body-base hover:bg-surface-container-highest transition-all duration-200 shadow-sm hover:-translate-y-0.5 active:scale-95 flex items-center gap-2" href="#projeler">
                   <span data-i18n="hero_btn_projects">Projelerimi İncele</span>
                   <span class="material-symbols-outlined text-[18px]">arrow_downward</span>
                 </a>
@@ -322,11 +390,13 @@
                 <span class="hidden sm:inline-block font-code-sm text-code-sm text-on-surface-variant">sumeyraltas.github.io</span>
               </div>
             </div>
-            <!-- Avatar with Gradient Ring -->
-            <div class="relative group self-center md:self-auto">
-              <div class="absolute -inset-1.5 rounded-3xl bg-gradient-to-tr from-primary to-secondary opacity-60 blur-md group-hover:opacity-90 transition duration-300"></div>
-              <div class="relative w-44 h-44 md:w-56 md:h-56 rounded-2xl bg-surface-container-lowest overflow-hidden shadow-2xl flex items-center justify-center p-3">
-                <img alt="Sümeyra Altaş Monogram Icon" class="w-full h-full object-contain rounded-xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCkMSKlHakW6pHADsfIEKqo8iijBzjlTe7Zb-wDrRkbkHJiVTowAL0Ar8M3lGVujSVVEJOER0DneYWwgqP-2a7VHxUJXwS1an3OPgRnLwJWZwOCccXBW6Itjc1cgY3o_9aL9K7p5Jy5cNSmGSxNfoILd42Z5J_3Yr9GpzjrfABxWtSW891A_xUoRPuYfW_MX8kdDCzk-QexvTDmRatPSm9ye0HcF0sIX5yuB8MwC6zHFl2HEMJbAxB9Q"/>
+            <!-- Avatar with Complete, Unclipped Ambient Purple & Violet Luminous Glow -->
+            <div class="relative group self-center md:self-auto flex-shrink-0 p-3 overflow-visible">
+              <!-- Wide, smooth purple reflection glow that breathes naturally without clipping -->
+              <div class="absolute -inset-4 md:-inset-6 rounded-3xl bg-gradient-to-tr from-primary via-purple-600/70 to-secondary opacity-75 blur-2xl group-hover:opacity-100 transition-all duration-500 pointer-events-none"></div>
+              <div class="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-primary/80 via-purple-500/60 to-secondary/80 blur-md opacity-85 group-hover:opacity-100 transition duration-300 pointer-events-none"></div>
+              <div class="relative w-44 h-44 md:w-56 md:h-56 rounded-2xl flex items-center justify-center shadow-2xl">
+                <img alt="Sümeyra Altaş Monogram Icon" class="w-full h-full object-cover rounded-2xl shadow-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCkMSKlHakW6pHADsfIEKqo8iijBzjlTe7Zb-wDrRkbkHJiVTowAL0Ar8M3lGVujSVVEJOER0DneYWwgqP-2a7VHxUJXwS1an3OPgRnLwJWZwOCccXBW6Itjc1cgY3o_9aL9K7p5Jy5cNSmGSxNfoILd42Z5J_3Yr9GpzjrfABxWtSW891A_xUoRPuYfW_MX8kdDCzk-QexvTDmRatPSm9ye0HcF0sIX5yuB8MwC6zHFl2HEMJbAxB9Q"/>
               </div>
             </div>
           </div>
@@ -345,10 +415,10 @@
             <div class="lg:col-span-7 flex flex-col gap-6 font-body-base text-body-base text-on-surface-variant leading-relaxed">
               <div class="p-6 md:p-8 rounded-2xl bg-surface-container-low shadow-sm flex flex-col gap-4">
                 <p data-i18n="about_p1">
-                  Türkiye merkezli bir <strong class="text-on-surface font-body-bold">Bilgisayar Mühendisi</strong> olarak; sürdürülebilir, yüksek performanslı ve ölçeklenebilir dijital çözümler tasarlıyorum. Yazılım geliştirme sürecini sadece kod üretmek değil, sağlam bir mimari ve kesintisiz kullanıcı akışları kurgulama sanatı olarak görüyorum.
+                  Türkiye merkezli bir <strong class="text-on-surface font-body-bold">Bilgisayar Mühendisi</strong> olarak; Huawei bünyesinde dünyanın en yaygın dağıtık veri işleme motoru olan <strong class="text-primary font-body-bold">Apache Spark</strong> ekosistemine açık kaynaklı katkılar sundum, test altyapısı ve performans kod optimizasyonları kurguladım.
                 </p>
                 <p data-i18n="about_p2">
-                  Akademik altyapım ve bağımsız projelerim sayesinde veritabanı optimizasyonundan modern web arayüzlerine, RESTful mikroservislerden iOS mobil geliştirmeye kadar uçtan uca (<em class="text-primary not-italic font-code-sm font-medium">Full Stack</em>) sorumluluk alma refleksine sahibim.
+                  TÜBİTAK BİLGEM YTE mikroservis geliştirme tecrübem, techcareer.net QA Test Engineer ve Papara .Net Bootcamp programlarındaki başarılarım ile; dağıtık mimarilerden kurumsal Java/Spring Boot ve .NET servislerine, PostgreSQL optimizasyonundan modern web arayüzlerine kadar uçtan uca güvenilir sistemler inşa ediyorum.
                 </p>
                 <div class="flex items-center gap-4 pt-2">
                   <div class="flex items-center gap-1.5 font-code-sm text-code-sm text-on-surface">
@@ -361,7 +431,7 @@
                   </div>
                   <div class="flex items-center gap-1.5 font-code-sm text-code-sm text-on-surface">
                     <span class="material-symbols-outlined text-[16px] text-tertiary">terminal</span>
-                    <span data-i18n="about_badge_clean">Agile &amp; Clean Code</span>
+                    <span data-i18n="about_badge_clean">Apache Spark &amp; Distributed</span>
                   </div>
                 </div>
               </div>
@@ -371,41 +441,45 @@
                   <span class="material-symbols-outlined text-primary text-[22px]">developer_mode</span>
                   <span data-i18n="about_tech_title">Teknoloji Yığını &amp; Uzmanlıklar</span>
                 </h3>
-                <!-- Diller -->
+                <!-- Diller & Dağıtık Sistemler -->
                 <div class="flex flex-col gap-2.5">
-                  <span class="font-code-sm text-code-sm text-on-surface-variant font-medium" data-i18n="about_tech_sub1">DİLLER &amp; ÇEKİRDEK</span>
+                  <span class="font-code-sm text-code-sm text-on-surface-variant font-medium" data-i18n="about_tech_sub1">DAĞITIK SİSTEMLER, DİLLER &amp; BÜYÜK VERİ</span>
                   <div class="flex flex-wrap gap-2">
-                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-primary font-code-badge text-code-badge flex items-center gap-1.5">
-                      <span class="material-symbols-outlined text-[14px]">javascript</span> JavaScript (ES6+)
+                    <span class="px-3 py-1 rounded-md bg-primary text-on-primary font-code-badge text-code-badge font-bold flex items-center gap-1.5 shadow-sm">
+                      <span class="material-symbols-outlined text-[14px]">bolt</span> Apache Spark
                     </span>
-                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">Java</span>
-                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">Swift</span>
+                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-primary font-code-badge text-code-badge font-semibold">Scala</span>
+                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge font-semibold">Java</span>
+                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">HDFS &amp; Hive</span>
+                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">PL/pgSQL &amp; SQL</span>
                     <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">Python</span>
-                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">PL/pgSQL</span>
-                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">HTML5 / CSS3</span>
-                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-tertiary font-code-badge text-code-badge">Tailwind CSS</span>
+                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">JavaScript (ES6+)</span>
+                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">Swift</span>
                   </div>
                 </div>
-                <!-- Backend & DB -->
+                <!-- Backend, DB & Frameworks -->
                 <div class="flex flex-col gap-2.5">
                   <span class="font-code-sm text-code-sm text-on-surface-variant font-medium" data-i18n="about_tech_sub2">BACKEND, VERİTABANI &amp; MİMARİ</span>
                   <div class="flex flex-wrap gap-2">
-                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">Spring Boot</span>
-                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-primary font-code-badge text-code-badge">Node.js</span>
-                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-tertiary font-code-badge text-code-badge">PostgreSQL</span>
+                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-secondary font-code-badge text-code-badge font-semibold">Spring Boot</span>
+                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-tertiary font-code-badge text-code-badge font-semibold">PostgreSQL</span>
+                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-primary font-code-badge text-code-badge font-semibold">.NET Core (Papara)</span>
+                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">Microsoft SQL Server</span>
+                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">Hibernate / JPA</span>
+                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">Apache Kafka</span>
                     <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">RESTful APIs</span>
-                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">Git &amp; GitHub Workflows</span>
                   </div>
                 </div>
                 <!-- Araçlar & Metodolojiler -->
                 <div class="flex flex-col gap-2.5">
-                  <span class="font-code-sm text-code-sm text-on-surface-variant font-medium" data-i18n="about_tech_sub3">ARAÇLAR, PRENSİPLER &amp; YÖNTEM</span>
+                  <span class="font-code-sm text-code-sm text-on-surface-variant font-medium" data-i18n="about_tech_sub3">KALİTE GÜVENCE (QA), ARAÇLAR &amp; METODOLOJİ</span>
                   <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-tertiary font-code-badge text-code-badge font-semibold">QA &amp; Test Otomasyonu (techcareer.net)</span>
                     <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">Docker</span>
                     <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">Agile / Scrum</span>
-                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-secondary font-code-badge text-code-badge">Clean Architecture</span>
-                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">CI/CD Pipelines</span>
-                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">VS Code &amp; IntelliJ</span>
+                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-secondary font-code-badge text-code-badge">Domain-Driven Design (DDD)</span>
+                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">Clean Architecture</span>
+                    <span class="px-3 py-1 rounded-md bg-surface-container-high text-on-surface font-code-badge text-code-badge">CI/CD &amp; Git</span>
                   </div>
                 </div>
               </div>
@@ -460,13 +534,234 @@
               </div>
             </div>
           </div>
+
+          <!-- CV Highlight Banner Card -->
+          <div class="mt-4 p-6 md:p-8 rounded-2xl bg-gradient-to-r from-primary/10 via-surface-container-low to-secondary/10 border border-primary/20 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div class="flex items-start sm:items-center gap-4">
+              <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-primary/20 text-primary flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-[28px] md:text-[32px]">badge</span>
+              </div>
+              <div class="flex flex-col">
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="font-h3 text-h3 text-on-surface font-bold" data-i18n="cv_banner_title">Resmi Özgeçmiş (Curriculum Vitae)</h3>
+                  <span class="font-code-badge text-code-badge px-2 py-0.5 rounded-md bg-tertiary/15 text-tertiary" data-i18n="cv_banner_badge">Güncel / 2026</span>
+                </div>
+                <p class="font-body-base text-body-base text-on-surface-variant mt-1" data-i18n="cv_banner_desc">
+                  Huawei (Apache Spark), TÜBİTAK BİLGEM YTE iş tecrübeleri, akademik dereceler ve teknik yetkinliklerin yer aldığı resmi CV belgesi.
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 w-full md:w-auto flex-shrink-0">
+              <button onclick="openCvModal()" class="w-full md:w-auto px-5 py-2.5 rounded-xl bg-primary text-on-primary font-body-bold text-body-base hover:bg-primary-container transition-all duration-200 shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95" type="button">
+                <span class="material-symbols-outlined text-[18px]">visibility</span>
+                <span data-i18n="cv_banner_btn">Özgeçmişi İncele (CV)</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. DENEYİM & BOOTCAMP PROGRAMLARI SECTION -->
+        <section class="py-16 md:py-20 flex flex-col gap-10" id="deneyim">
+          <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div class="flex flex-col gap-2">
+              <span class="font-code-sm text-code-sm text-primary tracking-widest uppercase" data-i18n="exp_tag">02 // Kariyer &amp; Bootcamp'ler</span>
+              <h2 class="font-h1 text-h1-mobile md:text-h1 text-on-surface" data-i18n="exp_heading">Deneyim &amp; Bootcamp Programları</h2>
+            </div>
+            <button onclick="openCvModal()" class="inline-flex items-center gap-1.5 font-body-bold text-body-base text-primary hover:text-primary-fixed transition-colors cursor-pointer" type="button">
+              <span class="material-symbols-outlined text-[18px]">description</span>
+              <span data-i18n="exp_cv_link">Tüm Detayları CV'de İncele</span>
+            </button>
+          </div>
+
+          <!-- 4 Cards Grid: Huawei (Apache Spark), TÜBİTAK, techcareer.net QA, Papara .NET -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 1. Huawei - Apache Spark -->
+            <div class="p-7 rounded-2xl bg-surface-container-low border-2 border-primary/40 shadow-sm flex flex-col justify-between relative overflow-hidden group hover:border-primary transition-colors">
+              <div class="absolute -top-12 -right-12 w-36 h-36 bg-primary/10 rounded-full blur-2xl pointer-events-none"></div>
+              <div class="flex flex-col gap-4">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                  <div class="flex items-center gap-2">
+                    <span class="w-9 h-9 rounded-xl bg-primary/15 text-primary flex items-center justify-center shadow-sm">
+                      <span class="material-symbols-outlined text-[20px]">bolt</span>
+                    </span>
+                    <div>
+                      <span class="font-bold text-on-surface text-lg block leading-tight">Huawei</span>
+                      <span class="font-code-sm text-xs text-on-surface-variant">Software Developer</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-primary text-on-primary font-bold shadow-xs">Apache Spark</span>
+                    <span class="font-code-sm text-xs text-on-surface-variant font-medium">04/2024 – 07/2026</span>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="font-h3 text-h3 text-on-surface group-hover:text-primary transition-colors" data-i18n="exp1_title">
+                    Software Developer — Apache Spark Açık Kaynak Çekirdeği
+                  </h3>
+                  <p class="font-body-base text-body-base text-on-surface-variant leading-relaxed mt-2" data-i18n="exp1_desc">
+                    Dünyanın en yaygın dağıtık büyük veri işleme çerçevesi olan <strong>Apache Spark</strong> projesine aktif açık kaynak kod katkıları. Büyük ölçekli dağıtık mimarilerde test altyapısı konfigürasyonları, regresyon önleme, kod kalitesi ve performans optimizasyonları.
+                  </p>
+                </div>
+                <!-- Tech Chips -->
+                <div class="flex flex-wrap gap-1.5 pt-1">
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-primary/15 text-primary font-semibold">Apache Spark</span>
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface">Scala</span>
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface">Java</span>
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface">Distributed Systems</span>
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface">HDFS &amp; Hive</span>
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface">Maven &amp; Git</span>
+                </div>
+              </div>
+              <div class="pt-5 mt-4 border-t border-surface-container flex items-center justify-between">
+                <span class="font-code-sm text-xs text-on-surface-variant" data-i18n="exp1_role">Full Time • Dağıtık Sistemler</span>
+                <button onclick="openCvModal()" class="text-primary hover:underline font-code-sm text-xs font-semibold flex items-center gap-1 cursor-pointer" type="button">
+                  <span data-i18n="btn_view_cv">CV'de İncele</span>
+                  <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 2. TÜBİTAK BİLGEM YTE -->
+            <div class="p-7 rounded-2xl bg-surface-container-low border border-surface-container shadow-sm flex flex-col justify-between group hover:border-secondary/50 transition-colors">
+              <div class="flex flex-col gap-4">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                  <div class="flex items-center gap-2">
+                    <span class="w-9 h-9 rounded-xl bg-secondary/15 text-secondary flex items-center justify-center shadow-sm">
+                      <span class="material-symbols-outlined text-[20px]">domain</span>
+                    </span>
+                    <div>
+                      <span class="font-bold text-on-surface text-lg block leading-tight">TÜBİTAK BİLGEM YTE</span>
+                      <span class="font-code-sm text-xs text-on-surface-variant">Software Developer</span>
+                    </div>
+                  </div>
+                  <span class="font-code-sm text-xs text-on-surface-variant font-medium">10/2022 – 04/2023</span>
+                </div>
+                <div>
+                  <h3 class="font-h3 text-h3 text-on-surface group-hover:text-secondary transition-colors" data-i18n="exp2_title">
+                    Software Developer — Kurumsal Mikroservis Mimarisi (MGM)
+                  </h3>
+                  <p class="font-body-base text-body-base text-on-surface-variant leading-relaxed mt-2" data-i18n="exp2_desc">
+                    Kurumsal düzeyde Yeni Muhasebe Yazılımı (MGM) için Domain-Driven Design (DDD) ilkeleriyle Spring Boot ve Hibernate tabanlı mikroservisler geliştirme. PostgreSQL optimizasyonları ve birim/entegrasyon test paketleri.
+                  </p>
+                </div>
+                <!-- Tech Chips -->
+                <div class="flex flex-wrap gap-1.5 pt-1">
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-secondary/15 text-secondary font-semibold">Spring Boot</span>
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface">Java</span>
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface">PostgreSQL</span>
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface">Hibernate</span>
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface">Apache Kafka</span>
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface">DDD</span>
+                </div>
+              </div>
+              <div class="pt-5 mt-4 border-t border-surface-container flex items-center justify-between">
+                <span class="font-code-sm text-xs text-on-surface-variant" data-i18n="exp2_role">Part Time &amp; Stajyer • Backend</span>
+                <button onclick="openCvModal()" class="text-secondary hover:underline font-code-sm text-xs font-semibold flex items-center gap-1 cursor-pointer" type="button">
+                  <span data-i18n="btn_view_cv">CV'de İncele</span>
+                  <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 3. techcareer.net QA Test Engineer Bootcamp -->
+            <div class="p-7 rounded-2xl bg-surface-container-low border border-surface-container shadow-sm flex flex-col justify-between group hover:border-tertiary/50 transition-colors">
+              <div class="flex flex-col gap-4">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                  <div class="flex items-center gap-2">
+                    <span class="w-9 h-9 rounded-xl bg-tertiary/15 text-tertiary flex items-center justify-center shadow-sm">
+                      <span class="material-symbols-outlined text-[20px]">verified</span>
+                    </span>
+                    <div>
+                      <span class="font-bold text-on-surface text-lg block leading-tight">techcareer.net</span>
+                      <span class="font-code-sm text-xs text-on-surface-variant">Bootcamp</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-code-badge text-code-badge px-2 py-0.5 rounded bg-tertiary/10 text-tertiary font-bold" data-i18n="bootcamp_badge">Bootcamp Mezunu</span>
+                    <span class="font-code-sm text-xs text-on-surface-variant font-medium">11/2023 – 12/2023</span>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="font-h3 text-h3 text-on-surface group-hover:text-tertiary transition-colors" data-i18n="bootcamp1_title">
+                    QA Test Engineer Bootcamp
+                  </h3>
+                  <p class="font-body-base text-body-base text-on-surface-variant leading-relaxed mt-2" data-i18n="bootcamp1_desc">
+                    Yazılım test metodolojileri, otomatik test mimarileri, fonksiyonel ve regresyon testleri, test senaryolarının kurgulanması ve kalite güvence (QA) süreçleri üzerine yoğunlaştırılmış bootcamp programı.
+                  </p>
+                </div>
+                <!-- Tech Chips -->
+                <div class="flex flex-wrap gap-1.5 pt-1">
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-tertiary/15 text-tertiary font-semibold">QA &amp; Test Automation</span>
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface">Test Methodologies</span>
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface">Java</span>
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface">Regression Testing</span>
+                </div>
+              </div>
+              <div class="pt-5 mt-4 border-t border-surface-container flex items-center justify-between">
+                <a href="https://github.com/sumeyraltas/QATESTBOOTCAMP" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-xl bg-surface-container-high hover:bg-surface-container text-on-surface font-body-bold text-code-badge flex items-center gap-1.5 transition-colors">
+                  <span class="material-symbols-outlined text-[16px]">code</span>
+                  <span>QATESTBOOTCAMP Repo</span>
+                </a>
+                <button onclick="showProjectDetails('qatest-bootcamp')" class="text-tertiary hover:underline font-code-sm text-xs font-semibold flex items-center gap-1 cursor-pointer" type="button">
+                  <span data-i18n="btn_detail">Detay</span>
+                  <span class="material-symbols-outlined text-[14px]">visibility</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 4. Papara .Net Bootcamp -->
+            <div class="p-7 rounded-2xl bg-surface-container-low border border-surface-container shadow-sm flex flex-col justify-between group hover:border-primary/50 transition-colors">
+              <div class="flex flex-col gap-4">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                  <div class="flex items-center gap-2">
+                    <span class="w-9 h-9 rounded-xl bg-primary/15 text-primary flex items-center justify-center shadow-sm">
+                      <span class="material-symbols-outlined text-[20px]">terminal</span>
+                    </span>
+                    <div>
+                      <span class="font-bold text-on-surface text-lg block leading-tight">Papara</span>
+                      <span class="font-code-sm text-xs text-on-surface-variant">Bootcamp</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-code-badge text-code-badge px-2 py-0.5 rounded bg-primary/10 text-primary font-bold" data-i18n="bootcamp_badge">Bootcamp Mezunu</span>
+                    <span class="font-code-sm text-xs text-on-surface-variant font-medium">01/2024 – 02/2024</span>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="font-h3 text-h3 text-on-surface group-hover:text-primary transition-colors" data-i18n="bootcamp2_title">
+                    Papara .Net Bootcamp
+                  </h3>
+                  <p class="font-body-base text-body-base text-on-surface-variant leading-relaxed mt-2" data-i18n="bootcamp2_desc">
+                    .NET ekosistemi, C# dili ve modern web backend mimarileri. Bitirme projesi olarak; katmanlı mimaride .NET Core ve Microsoft SQL Server kullanılarak geliştirilen Apartman Yönetim Sistemi (Apartment Management System).
+                  </p>
+                </div>
+                <!-- Tech Chips -->
+                <div class="flex flex-wrap gap-1.5 pt-1">
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-primary/15 text-primary font-semibold">.NET Core</span>
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface">C#</span>
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface">Microsoft SQL Server</span>
+                  <span class="font-code-badge text-code-badge px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface">RESTful APIs</span>
+                </div>
+              </div>
+              <div class="pt-5 mt-4 border-t border-surface-container flex items-center justify-between">
+                <a href="https://github.com/sumeyraltas/PaparaBootcampFinalHomework" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-xl bg-surface-container-high hover:bg-surface-container text-on-surface font-body-bold text-code-badge flex items-center gap-1.5 transition-colors">
+                  <span class="material-symbols-outlined text-[16px]">code</span>
+                  <span>Papara Final Repo</span>
+                </a>
+                <button onclick="showProjectDetails('papara-bootcamp')" class="text-primary hover:underline font-code-sm text-xs font-semibold flex items-center gap-1 cursor-pointer" type="button">
+                  <span data-i18n="btn_detail">Detay</span>
+                  <span class="material-symbols-outlined text-[14px]">visibility</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- 3. PROJELER (PROJECTS) SECTION -->
         <section class="py-16 md:py-20 flex flex-col gap-10" id="projeler">
           <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div class="flex flex-col gap-2">
-              <span class="font-code-sm text-code-sm text-primary tracking-widest uppercase" data-i18n="projects_tag">02 // GitHub Çıktıları</span>
+              <span class="font-code-sm text-code-sm text-primary tracking-widest uppercase" data-i18n="projects_tag">03 // GitHub Çıktıları</span>
               <h2 class="font-h1 text-h1-mobile md:text-h1 text-on-surface" data-i18n="projects_heading">Öne Çıkan Projeler</h2>
             </div>
             <a class="inline-flex items-center gap-1.5 font-body-bold text-body-base text-primary hover:text-primary-fixed transition-colors" href="https://github.com/sumeyraltas?tab=repositories" rel="noopener noreferrer" target="_blank">
@@ -686,7 +981,7 @@
         <section class="py-16 md:py-20 flex flex-col gap-10" id="blog">
           <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div class="flex flex-col gap-2">
-              <span class="font-code-sm text-code-sm text-primary tracking-widest uppercase" data-i18n="blog_tag">03 // Notlar &amp; Makaleler</span>
+              <span class="font-code-sm text-code-sm text-primary tracking-widest uppercase" data-i18n="blog_tag">04 // Notlar &amp; Makaleler</span>
               <h2 class="font-h1 text-h1-mobile md:text-h1 text-on-surface" data-i18n="blog_heading">Teknik Yazılar</h2>
             </div>
             <span class="font-code-sm text-code-sm text-on-surface-variant flex items-center gap-1.5">
@@ -770,7 +1065,7 @@
         <!-- 5. İLETİŞİM (CONTACT) SECTION -->
         <section class="py-16 md:py-20 flex flex-col gap-10" id="iletisim">
           <div class="flex flex-col gap-2">
-            <span class="font-code-sm text-code-sm text-primary tracking-widest uppercase" data-i18n="contact_tag">04 // Bağlantı &amp; Ortaklık</span>
+            <span class="font-code-sm text-code-sm text-primary tracking-widest uppercase" data-i18n="contact_tag">05 // Bağlantı &amp; Ortaklık</span>
             <h2 class="font-h1 text-h1-mobile md:text-h1 text-on-surface" data-i18n="contact_heading">İletişime Geç</h2>
             <p class="font-body-base text-body-base text-on-surface-variant max-w-xl" data-i18n="contact_desc">
               Yeni projeler, açık kaynak iş birlikleri veya teknik danışmanlık fırsatları için mesaj bırakabilirsiniz. En kısa sürede geri döneceğim.
@@ -876,6 +1171,276 @@
           </div>
         </div>
 
+        <!-- Dedicated Official Resume (CV) Modal -->
+        <div class="fixed inset-0 z-50 bg-surface-container-lowest/85 backdrop-blur-md hidden items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto" id="cvModalOverlay">
+          <div class="bg-surface-container-low max-w-4xl w-full rounded-2xl shadow-2xl flex flex-col my-auto border border-primary/20 overflow-hidden relative">
+            <!-- Modal Top Toolbar -->
+            <div class="p-4 sm:p-5 border-b border-surface-container flex items-center justify-between flex-wrap gap-3 bg-surface-container/50 no-print" id="cvModalToolbar">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[22px]">description</span>
+                </div>
+                <div>
+                  <h3 class="font-h3 text-h3 text-on-surface font-bold leading-tight" data-i18n="cv_modal_title">Sümeyra Altaş — Özgeçmiş (CV)</h3>
+                  <p class="font-code-sm text-code-sm text-on-surface-variant" data-i18n="cv_modal_subtitle">Resmi Özgeçmiş Belgesi &amp; Deneyim Dökümü</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2.5">
+                <!-- PDF / Print Action -->
+                <button onclick="printCvDocument()" class="px-3.5 py-2 rounded-xl bg-primary text-on-primary font-body-bold text-code-badge hover:bg-primary-container transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95" type="button" title="Belgeyi Yazdır veya PDF Olarak Kaydet">
+                  <span class="material-symbols-outlined text-[18px]">print</span>
+                  <span data-i18n="cv_print_btn">Yazdır / PDF Kaydet</span>
+                </button>
+                <!-- Modal Close -->
+                <button onclick="closeCvModal()" class="w-9 h-9 rounded-xl bg-surface-container-high hover:bg-surface-container text-on-surface flex items-center justify-center transition-colors cursor-pointer" type="button" aria-label="Kapat" title="Kapat">
+                  <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Resume Content Container (Printable Paper Sheet) -->
+            <div class="p-6 sm:p-8 md:p-10 max-h-[78vh] overflow-y-auto space-y-8 text-on-surface font-body-base leading-relaxed bg-surface-container-lowest" id="cvModalPaper">
+              
+              <!-- CV Header & Contact Area -->
+              <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-6 pb-6 border-b border-surface-container-high">
+                <div>
+                  <h1 class="font-display-hero text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-on-surface">
+                    SÜMEYRA ALTAŞ
+                  </h1>
+                  <p class="font-h3 text-base sm:text-lg text-primary font-semibold mt-1">
+                    Software Developer &amp; Computer Engineer
+                  </p>
+                  <p class="font-code-sm text-code-sm text-on-surface-variant mt-0.5">
+                    Java &amp; Distributed Systems • Apache Spark • Spring Boot • PostgreSQL
+                  </p>
+                </div>
+                <!-- Contact Badges -->
+                <div class="flex flex-col gap-2 font-code-sm text-code-sm text-on-surface-variant">
+                  <a href="mailto:sumeyraltas@gmail.com" class="hover:text-primary transition-colors flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px] text-primary">mail</span>
+                    <span>sumeyraltas@gmail.com</span>
+                  </a>
+                  <a href="tel:+905350279616" class="hover:text-primary transition-colors flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px] text-primary">call</span>
+                    <span>+90 535 027 96 16</span>
+                  </a>
+                  <a href="https://github.com/sumeyraltas" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px] text-primary">code</span>
+                    <span>github.com/sumeyraltas</span>
+                  </a>
+                  <a href="https://www.linkedin.com/in/sümeyra-altaş-122b63209/" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px] text-primary">link</span>
+                    <span>linkedin.com/in/sümeyra-altaş-122b63209</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- 1. SUMMARY -->
+              <div class="space-y-2">
+                <h2 class="font-label-caps text-xs sm:text-sm uppercase tracking-wider text-primary font-bold border-b border-primary/20 pb-1" data-i18n="cv_sec_summary">
+                  SUMMARY / ÖZET
+                </h2>
+                <p class="text-sm sm:text-base text-on-surface leading-relaxed pt-1" data-i18n="cv_summary_text">
+                  Results-driven Software Engineer with a strong foundation in Java and distributed systems. Experienced in working within Agile environments, building microservice architectures, and developing scalable backend solutions. Proven track record of contributing to major open-source projects, including code optimization and quality improvements in the Apache Spark ecosystem. Passionate about complex problem-solving, clean code principles, and driving high-performance engineering outcomes.
+                </p>
+              </div>
+
+              <!-- 2. SKILLS -->
+              <div class="space-y-3">
+                <h2 class="font-label-caps text-xs sm:text-sm uppercase tracking-wider text-primary font-bold border-b border-primary/20 pb-1" data-i18n="cv_sec_skills">
+                  SKILLS / YETKİNLİKLER
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <div class="p-3 rounded-xl bg-surface-container-low border border-surface-container">
+                    <span class="font-bold text-on-surface block text-xs tracking-wider uppercase text-primary mb-1">Programming Languages</span>
+                    <span class="text-on-surface-variant font-medium">Java, Scala, SQL, JavaScript, C</span>
+                  </div>
+                  <div class="p-3 rounded-xl bg-surface-container-low border border-surface-container">
+                    <span class="font-bold text-on-surface block text-xs tracking-wider uppercase text-primary mb-1">Data &amp; Big Data</span>
+                    <span class="text-on-surface-variant font-medium">Apache Spark, Hive, HDFS, PostgreSQL, Microsoft SQL Server</span>
+                  </div>
+                  <div class="p-3 rounded-xl bg-surface-container-low border border-surface-container">
+                    <span class="font-bold text-on-surface block text-xs tracking-wider uppercase text-primary mb-1">Frameworks &amp; Libraries</span>
+                    <span class="text-on-surface-variant font-medium">Spring Boot, Spring Data (Hibernate), React, Bootstrap</span>
+                  </div>
+                  <div class="p-3 rounded-xl bg-surface-container-low border border-surface-container">
+                    <span class="font-bold text-on-surface block text-xs tracking-wider uppercase text-primary mb-1">Tools &amp; DevOps</span>
+                    <span class="text-on-surface-variant font-medium">Git, GitHub, Maven, Jenkins, Jira</span>
+                  </div>
+                  <div class="p-3 rounded-xl bg-surface-container-low border border-surface-container md:col-span-2">
+                    <span class="font-bold text-on-surface block text-xs tracking-wider uppercase text-primary mb-1">Methodologies &amp; Concepts</span>
+                    <span class="text-on-surface-variant font-medium">Microservices Architecture, Domain-Driven Design (DDD), Agile/Scrum, Open-Source Development, RESTful APIs, Test Automation Frameworks</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. PROFESSIONAL EXPERIENCE -->
+              <div class="space-y-4">
+                <h2 class="font-label-caps text-xs sm:text-sm uppercase tracking-wider text-primary font-bold border-b border-primary/20 pb-1" data-i18n="cv_sec_exp">
+                  PROFESSIONAL EXPERIENCE / İŞ DENEYİMİ
+                </h2>
+                
+                <!-- Exp 1: Huawei -->
+                <div class="space-y-2 p-4 rounded-xl bg-surface-container-low/60 border border-surface-container">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <div>
+                      <span class="font-bold text-on-surface text-base">Huawei</span>
+                      <span class="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary font-semibold ml-2">Full Time – Software Developer</span>
+                    </div>
+                    <span class="font-code-sm text-xs text-on-surface-variant">04/2024 – 07/2026</span>
+                  </div>
+                  <p class="text-sm text-on-surface-variant leading-relaxed">
+                    <strong class="text-on-surface font-semibold">Summary:</strong> Contributing to Apache Spark project. Designed and maintained scalable test framework configurations, ensuring robust code quality, minimizing regressions, and improving the reliability of large-scale distributed architectures. Collaborated effectively with the global open-source community and internal engineering teams to review pull requests, implement architectural enhancements, and align with best practices for enterprise-grade open-source software development. In the Apache Spark ecosystem, performance-critical code optimizations and quality improvements have been implemented.
+                  </p>
+                  <div class="font-code-sm text-xs text-primary pt-1">
+                    <strong class="text-on-surface">Technologies:</strong> Apache Spark, Maven, Scala, Java, HDFS, Hive, Git
+                  </div>
+                </div>
+
+                <!-- Exp 2: TÜBİTAK BİLGEM YTE (Part Time) -->
+                <div class="space-y-2 p-4 rounded-xl bg-surface-container-low/60 border border-surface-container">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <div>
+                      <span class="font-bold text-on-surface text-base">TÜBİTAK BİLGEM YTE</span>
+                      <span class="text-xs px-2 py-0.5 rounded bg-secondary/15 text-secondary font-semibold ml-2">Part Time – Full Stack Developer</span>
+                    </div>
+                    <span class="font-code-sm text-xs text-on-surface-variant">10/2022 – 04/2023</span>
+                  </div>
+                  <p class="text-sm text-on-surface-variant leading-relaxed">
+                    <strong class="text-on-surface font-semibold">Summary:</strong> Developed and maintained scalable microservices for an enterprise-level New Accounting Software (MGM) using Java, Spring Boot, and Hibernate, strictly adhering to Domain-Driven Design (DDD) principles. Optimized data persistence with PostgreSQL, improving overall backend responsiveness and system decoupling. Engineered comprehensive unit and integration test suites, reducing technical debt and enhancing system stability within an Agile/Scrum development lifecycle.
+                  </p>
+                  <div class="font-code-sm text-xs text-primary pt-1">
+                    <strong class="text-on-surface">Technologies:</strong> Java, Spring Boot, Hibernate, Maven, PostgreSQL, Apache Kafka, Kibana, Git, EmberJS
+                  </div>
+                </div>
+
+                <!-- Exp 3: TÜBİTAK BİLGEM YTE (Intern) -->
+                <div class="space-y-2 p-4 rounded-xl bg-surface-container-low/60 border border-surface-container">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <div>
+                      <span class="font-bold text-on-surface text-base">TÜBİTAK BİLGEM YTE</span>
+                      <span class="text-xs px-2 py-0.5 rounded bg-tertiary/15 text-tertiary font-semibold ml-2">Intern – Software Developer</span>
+                    </div>
+                    <span class="font-code-sm text-xs text-on-surface-variant">09/2022 – 10/2022</span>
+                  </div>
+                  <p class="text-sm text-on-surface-variant leading-relaxed">
+                    <strong class="text-on-surface font-semibold">Summary:</strong> Designed and deployed a full-stack Student Management System leveraging Java-Spring Boot for the backend and React for the frontend, utilizing PostgreSQL for robust data management.
+                    (<a href="https://github.com/sumeyraltas/Student-Management-System" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline font-code-sm">github.com/sumeyraltas/Student-Management-System</a>)
+                  </p>
+                  <div class="font-code-sm text-xs text-primary pt-1">
+                    <strong class="text-on-surface">Technologies:</strong> Java-Spring, React, PostgreSQL
+                  </div>
+                </div>
+
+                <!-- Exp 4: Anadolu University -->
+                <div class="space-y-2 p-4 rounded-xl bg-surface-container-low/60 border border-surface-container">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <div>
+                      <span class="font-bold text-on-surface text-base">Anadolu University Application and Research Center</span>
+                      <span class="text-xs px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-semibold ml-2">Intern – Software Developer</span>
+                    </div>
+                    <span class="font-code-sm text-xs text-on-surface-variant">09/2021 – 10/2021</span>
+                  </div>
+                  <p class="text-sm text-on-surface-variant leading-relaxed">
+                    <strong class="text-on-surface font-semibold">Summary:</strong> Developed an interactive Password Security and Checking System to enhance user security awareness, utilizing HTML, CSS, JavaScript, and Bootstrap for responsive web design.
+                    (<a href="https://www.sodigem.com/parola-guvenligi/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline font-code-sm">sodigem.com/parola-guvenligi</a>)
+                  </p>
+                  <div class="font-code-sm text-xs text-primary pt-1">
+                    <strong class="text-on-surface">Technologies:</strong> HTML, CSS, JavaScript, Bootstrap
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. EDUCATION -->
+              <div class="space-y-3">
+                <h2 class="font-label-caps text-xs sm:text-sm uppercase tracking-wider text-primary font-bold border-b border-primary/20 pb-1" data-i18n="cv_sec_edu">
+                  EDUCATION / EĞİTİM
+                </h2>
+                <div class="space-y-2.5">
+                  <div class="p-3.5 rounded-xl bg-surface-container-low/60 border border-surface-container flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <div>
+                      <span class="font-bold text-on-surface">Osmangazi University</span>
+                      <span class="text-on-surface-variant text-sm block sm:inline sm:ml-2">| M. Sc. – Computer Engineering</span>
+                    </div>
+                    <span class="font-code-sm text-xs text-on-surface-variant">09/2025 – Present</span>
+                  </div>
+                  <div class="p-3.5 rounded-xl bg-surface-container-low/60 border border-surface-container space-y-1">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                      <div>
+                        <span class="font-bold text-on-surface">TED University</span>
+                        <span class="text-on-surface-variant text-sm ml-1">| B. Sc. – Computer Engineering (<strong class="text-primary">100% Scholarship</strong>)</span>
+                      </div>
+                      <span class="font-code-sm text-xs text-on-surface-variant">09/2018 – 07/2023</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 text-xs text-on-surface-variant pt-1">
+                      <span class="px-2 py-0.5 rounded bg-surface-container-high font-semibold text-on-surface">GPA: 3.4 / 4.00</span>
+                      <span>Minor: Faculty of Economics and Administrative Sciences | Management (02/2021 – 07/2023)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5. PROJECTS & CONTINUOUS LEARNING -->
+              <div class="space-y-3 pb-2">
+                <h2 class="font-label-caps text-xs sm:text-sm uppercase tracking-wider text-primary font-bold border-b border-primary/20 pb-1" data-i18n="cv_sec_learn">
+                  PROJECTS &amp; CONTINUOUS LEARNING / SÜREKLİ ÖĞRENME
+                </h2>
+                <div class="space-y-2.5">
+                  <!-- Bootcamp 1 -->
+                  <div class="p-3.5 rounded-xl bg-surface-container-low/60 border border-surface-container space-y-1.5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                      <div>
+                        <span class="font-bold text-on-surface">techcareer.net QA Test Engineer Bootcamp</span>
+                      </div>
+                      <span class="font-code-sm text-xs text-on-surface-variant">11/2023 – 12/2023</span>
+                    </div>
+                    <p class="text-sm text-on-surface-variant">
+                      <strong class="text-on-surface font-semibold">Summary:</strong> Gained hands-on experience in implementing diverse testing methodologies and automated quality assurance pipelines.
+                      (<a href="https://github.com/sumeyraltas/QATESTBOOTCAMP" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline font-code-sm">github.com/sumeyraltas/QATESTBOOTCAMP</a>)
+                    </p>
+                  </div>
+
+                  <!-- Bootcamp 2 -->
+                  <div class="p-3.5 rounded-xl bg-surface-container-low/60 border border-surface-container space-y-1.5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                      <div>
+                        <span class="font-bold text-on-surface">Papara .Net Bootcamp</span>
+                      </div>
+                      <span class="font-code-sm text-xs text-on-surface-variant">01/2024 – 02/2024</span>
+                    </div>
+                    <p class="text-sm text-on-surface-variant">
+                      <strong class="text-on-surface font-semibold">Summary:</strong> Completed a comprehensive bootcamp focused on .NET ecosystem fundamentals and C# programming. As a final capstone project, developed an Apartment Management System utilizing .NET Core and Microsoft SQL Server to apply learned concepts in RESTful API development and relational database design.
+                      (<a href="https://github.com/sumeyraltas/PaparaBootcampFinalHomework" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline font-code-sm">github.com/sumeyraltas/PaparaBootcampFinalHomework</a>)
+                    </p>
+                    <div class="font-code-sm text-xs text-primary pt-0.5">
+                      <strong class="text-on-surface">Used Technologies:</strong> .Net Core, Microsoft SQL Server
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Modal Bottom Action Bar -->
+            <div class="p-4 sm:p-5 border-t border-surface-container flex items-center justify-between gap-3 bg-surface-container/40 no-print">
+              <div class="flex items-center gap-2 text-xs text-on-surface-variant font-code-sm">
+                <span class="w-2 h-2 rounded-full bg-tertiary"></span>
+                <span>CV Updated: July 2026</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <button onclick="closeCvModal()" class="px-4 py-2 rounded-xl bg-surface-container-high text-on-surface font-body-bold text-code-badge hover:bg-surface-container transition-colors cursor-pointer" type="button" data-i18n="modal_close">
+                  Kapat
+                </button>
+                <button onclick="printCvDocument()" class="px-4 py-2 rounded-xl bg-primary text-on-primary font-body-bold text-code-badge hover:bg-primary-container transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95" type="button">
+                  <span class="material-symbols-outlined text-[16px]">download</span>
+                  <span data-i18n="cv_download_btn">Yazdır / İndir</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         <!-- Inline Logic: Navigation, Form, Modals, Theme & i18n Engine -->
         <script>
           // ==========================================
@@ -885,27 +1450,29 @@
             tr: {
               page_title: "Sümeyra Altaş — Portfolio",
               nav_about: "Hakkımda",
+              nav_experience: "Deneyim & Eğitim",
               nav_projects: "Projeler",
               nav_blog: "Blog",
               nav_contact: "İletişim",
               mobile_lang_desc: "Dil / Language:",
               hero_status: "Açık kaynak & yeni projelere açık 🚀",
+              hero_spark_badge: "Apache Spark Contributor (Huawei)",
               hero_greeting: "Merhaba, Ben",
-              hero_role: "Bilgisayar Mühendisi & Yazılım Geliştirici",
-              hero_bio: "Modern web teknolojileri, backend sistemleri ve mobil uygulamalar geliştiren bilgisayar mühendisi. Temiz kod, mimari tasarım ve sezgisel kullanıcı deneyimine odaklanıyorum.",
+              hero_role: "Bilgisayar Mühendisi | Apache Spark & Dağıtık Sistemler",
+              hero_bio: "Huawei bünyesinde açık kaynaklı Apache Spark ekosistemi üzerinde optimizasyon ve test mimarileri geliştiren; kurumsal Java/Spring Boot ve dağıtık büyük veri çözümlerinde uzmanlaşan Bilgisayar Mühendisi.",
               hero_btn_projects: "Projelerimi İncele",
               hero_btn_contact: "İletişime Geç",
               about_tag: "01 // Profil & Yetkinlik",
               about_heading: "Hakkımda",
-              about_p1: `Türkiye merkezli bir <strong class="text-on-surface font-body-bold">Bilgisayar Mühendisi</strong> olarak; sürdürülebilir, yüksek performanslı ve ölçeklenebilir dijital çözümler tasarlıyorum. Yazılım geliştirme sürecini sadece kod üretmek değil, sağlam bir mimari ve kesintisiz kullanıcı akışları kurgulama sanatı olarak görüyorum.`,
-              about_p2: `Akademik altyapım ve bağımsız projelerim sayesinde veritabanı optimizasyonundan modern web arayüzlerine, RESTful mikroservislerden iOS mobil geliştirmeye kadar uçtan uca (<em class="text-primary not-italic font-code-sm font-medium">Full Stack</em>) sorumluluk alma refleksine sahibim.`,
+              about_p1: `Türkiye merkezli bir <strong class="text-on-surface font-body-bold">Bilgisayar Mühendisi</strong> olarak; Huawei bünyesinde dünyanın en yaygın dağıtık veri işleme motoru olan <strong class="text-primary font-body-bold">Apache Spark</strong> ekosistemine açık kaynaklı katkılar sundum, test altyapısı ve performans kod optimizasyonları kurguladım.`,
+              about_p2: `TÜBİTAK BİLGEM YTE mikroservis geliştirme tecrübem, techcareer.net QA Test Engineer ve Papara .Net Bootcamp programlarındaki başarılarım ile; dağıtık mimarilerden kurumsal Java/Spring Boot ve .NET servislerine, PostgreSQL optimizasyonundan modern web arayüzlerine kadar uçtan uca güvenilir sistemler inşa ediyorum.`,
               about_badge_loc: "Türkiye",
               about_badge_edu: "Computer Engineering",
-              about_badge_clean: "Agile & Clean Code",
+              about_badge_clean: "Apache Spark & Dağıtık Sistemler",
               about_tech_title: "Teknoloji Yığını & Uzmanlıklar",
-              about_tech_sub1: "DİLLER & ÇEKİRDEK",
+              about_tech_sub1: "DAĞITIK SİSTEMLER, DİLLER & BÜYÜK VERİ",
               about_tech_sub2: "BACKEND, VERİTABANI & MİMARİ",
-              about_tech_sub3: "ARAÇLAR, PRENSİPLER & YÖNTEM",
+              about_tech_sub3: "KALİTE GÜVENCE (QA), ARAÇLAR & METODOLOJİ",
               stats_repos: "GitHub Reposu",
               stats_fullstack: "Yazılım Yetkinliği",
               stats_learning: "Sürekli Öğrenme Tutkusu",
@@ -913,7 +1480,22 @@
               spark_sprint1: "Sprint 01: Keşif",
               spark_sprint4: "Sprint 04: Kod Kalitesi",
               spark_prod: "Canlı Yayın",
-              projects_tag: "02 // GitHub Çıktıları",
+              exp_tag: "02 // Kariyer & Bootcamp'ler",
+              exp_heading: "Deneyim & Bootcamp Programları",
+              exp_cv_link: "Tüm Detayları CV'de İncele",
+              exp1_title: "Software Developer — Apache Spark Açık Kaynak Çekirdeği",
+              exp1_desc: "Dünyanın en yaygın dağıtık büyük veri işleme çerçevesi olan Apache Spark projesine aktif açık kaynak kod katkıları. Büyük ölçekli dağıtık mimarilerde test altyapısı konfigürasyonları, regresyon önleme, kod kalitesi ve performans optimizasyonları.",
+              exp1_role: "Full Time • Dağıtık Sistemler",
+              exp2_title: "Software Developer — Kurumsal Mikroservis Mimarisi (MGM)",
+              exp2_desc: "Kurumsal düzeyde Yeni Muhasebe Yazılımı (MGM) için Domain-Driven Design (DDD) ilkeleriyle Spring Boot ve Hibernate tabanlı mikroservisler geliştirme. PostgreSQL optimizasyonları ve birim/entegrasyon test paketleri.",
+              exp2_role: "Part Time & Stajyer • Backend",
+              bootcamp_badge: "Bootcamp Mezunu",
+              bootcamp1_title: "QA Test Engineer Bootcamp",
+              bootcamp1_desc: "Yazılım test metodolojileri, otomatik test mimarileri, fonksiyonel ve regresyon testleri, test senaryolarının kurgulanması ve kalite güvence (QA) süreçleri üzerine yoğunlaştırılmış bootcamp programı.",
+              bootcamp2_title: "Papara .Net Bootcamp",
+              bootcamp2_desc: ".NET ekosistemi, C# dili ve modern web backend mimarileri. Bitirme projesi olarak; katmanlı mimaride .NET Core ve Microsoft SQL Server kullanılarak geliştirilen Apartman Yönetim Sistemi (Apartment Management System).",
+              btn_view_cv: "CV'de İncele",
+              projects_tag: "03 // GitHub Çıktıları",
               projects_heading: "Öne Çıkan Projeler",
               projects_all_link: "Tüm GitHub Repolarını Gör (32)",
               btn_detail: "Detay",
@@ -930,7 +1512,7 @@
               p5_desc: "iOS platformu için Swift dili ile geliştirilmiş, akıcı animasyonlara ve dokunsal geri bildirimlere sahip zar atma ve şans oyunu deneyimi.",
               p6_cat: "Security & Web",
               p6_desc: "Parola güvenlik ve karmaşıklık analizi yapan, entropi hesaplayıcı ve regex tabanlı anlık görsel geri bildirim sunan istemci taraflı araç.",
-              blog_tag: "03 // Notlar & Makaleler",
+              blog_tag: "04 // Notlar & Makaleler",
               blog_heading: "Teknik Yazılar",
               blog_sub: "Markdown / Static Post Entegrasyonu",
               btn_read_more: "Devamını Oku",
@@ -946,7 +1528,7 @@
               post3_read: "5 dk okuma",
               post3_title: "Java & Clean Architecture İlkeleriyle Backend Geliştirme",
               post3_desc: "Katmanlı mimariden Clean Architecture'a geçiş; bağımlılıkların tersine çevrilmesi (Dependency Inversion), Domain Modelleri ve test edilebilir servis tasarımı.",
-              contact_tag: "04 // Bağlantı & Ortaklık",
+              contact_tag: "05 // Bağlantı & Ortaklık",
               contact_heading: "İletişime Geç",
               contact_desc: "Yeni projeler, açık kaynak iş birlikleri veya teknik danışmanlık fırsatları için mesaj bırakabilirsiniz. En kısa sürede geri döneceğim.",
               contact_email_title: "E-Posta",
@@ -969,32 +1551,52 @@
               form_feedback_msg: "Mesajınız başarıyla iletildi! En kısa zamanda geri döneceğim.",
               modal_close: "Kapat",
               modal_action_view: "GitHub'da İncele",
-              modal_source_repo: "Kaynak Repo"
+              modal_source_repo: "Kaynak Repo",
+              nav_cv: "CV",
+              nav_cv_long: "Özgeçmiş Belgesi (CV)",
+              hero_btn_cv: "Özgeçmişi İncele (CV)",
+              cv_banner_title: "Resmi Özgeçmiş (Curriculum Vitae)",
+              cv_banner_badge: "Güncel / 2026",
+              cv_banner_desc: "Huawei (Apache Spark), TÜBİTAK BİLGEM YTE iş tecrübeleri, akademik dereceler ve teknik yetkinliklerin yer aldığı resmi CV belgesi.",
+              cv_banner_btn: "Özgeçmişi İncele (CV)",
+              cv_modal_title: "Sümeyra Altaş — Özgeçmiş (CV)",
+              cv_modal_subtitle: "Resmi Özgeçmiş Belgesi & Deneyim Dökümü",
+              cv_print_btn: "Yazdır / PDF Kaydet",
+              cv_download_btn: "Yazdır / İndir",
+              cv_sec_summary: "SUMMARY / ÖZET",
+              cv_summary_text: "Sonuç odaklı, Java ve dağıtık sistemler konusunda sağlam temellere sahip Bilgisayar Mühendisi. Çevik (Agile) ortamlarda mikroservis mimarileri geliştirme ve ölçeklenebilir backend çözümleri üretme konusunda deneyimli. Apache Spark ekosistemi başta olmak üzere büyük ölçekli açık kaynak projelere kod optimizasyonu ve kalite geliştirme katkıları sunmuş; temiz kod, mimari sürdürülebilirlik ve yüksek mühendislik kalitesine odaklanan profesyonel.",
+              cv_sec_skills: "SKILLS / YETKİNLİKLER",
+              cv_sec_exp: "PROFESSIONAL EXPERIENCE / İŞ DENEYİMİ",
+              cv_sec_edu: "EDUCATION / EĞİTİM",
+              cv_sec_learn: "PROJECTS & CONTINUOUS LEARNING / SÜREKLİ ÖĞRENME",
+              footer_cv: "Özgeçmiş (CV)"
             },
             en: {
               page_title: "Sümeyra Altaş — Portfolio",
               nav_about: "About",
+              nav_experience: "Experience & Bootcamps",
               nav_projects: "Projects",
               nav_blog: "Blog",
               nav_contact: "Contact",
               mobile_lang_desc: "Language / Dil:",
               hero_status: "Open source & open to new projects 🚀",
+              hero_spark_badge: "Apache Spark Contributor (Huawei)",
               hero_greeting: "Hello, I'm",
-              hero_role: "Computer Engineer & Software Developer",
-              hero_bio: "Computer engineer building modern web technologies, backend architectures, and mobile applications. Focused on clean code, system scalability, and intuitive user experiences.",
+              hero_role: "Computer Engineer | Apache Spark & Distributed Systems",
+              hero_bio: "Computer engineer who contributed to the open-source Apache Spark ecosystem at Huawei; specialized in distributed big data processing, enterprise Java/Spring Boot microservices, and robust system architecture.",
               hero_btn_projects: "Explore Projects",
               hero_btn_contact: "Get In Touch",
               about_tag: "01 // Profile & Capabilities",
               about_heading: "About Me",
-              about_p1: `As a Turkey-based <strong class="text-on-surface font-body-bold">Computer Engineer</strong>, I design sustainable, high-performance, and scalable digital solutions. I view software engineering not simply as writing code, but as the craft of architecting resilient systems and seamless user flows.`,
-              about_p2: `Through my academic foundation and hands-on projects, I have developed the instinct to take end-to-end (<em class="text-primary not-italic font-code-sm font-medium">Full Stack</em>) ownership—from database optimization and modern web frontends to RESTful microservices and native iOS development.`,
+              about_p1: `As a Turkey-based <strong class="text-on-surface font-body-bold">Computer Engineer</strong>, I contributed to the open-source <strong class="text-primary font-body-bold">Apache Spark</strong> big data processing ecosystem at Huawei, engineering distributed test infrastructures and performance optimizations.`,
+              about_p2: `With professional experience in enterprise microservices at TÜBİTAK BİLGEM YTE and completed QA Test Engineer (techcareer.net) & .NET (Papara) bootcamps, I develop resilient end-to-end architectures—from distributed engines to enterprise Spring Boot and .NET APIs, database tuning, and modern web interfaces.`,
               about_badge_loc: "Turkey",
               about_badge_edu: "Computer Engineering",
-              about_badge_clean: "Agile & Clean Code",
+              about_badge_clean: "Apache Spark & Distributed Systems",
               about_tech_title: "Tech Stack & Specializations",
-              about_tech_sub1: "LANGUAGES & CORE",
+              about_tech_sub1: "DISTRIBUTED SYSTEMS, LANGUAGES & BIG DATA",
               about_tech_sub2: "BACKEND, DATABASE & ARCHITECTURE",
-              about_tech_sub3: "TOOLS, PRINCIPLES & METHODOLOGY",
+              about_tech_sub3: "QUALITY ASSURANCE (QA), TOOLS & METHODOLOGY",
               stats_repos: "GitHub Repositories",
               stats_fullstack: "Full-Stack Proficiency",
               stats_learning: "Lifelong Learning Drive",
@@ -1002,7 +1604,22 @@
               spark_sprint1: "Sprint 01: Discovery",
               spark_sprint4: "Sprint 04: Code Quality",
               spark_prod: "Production Release",
-              projects_tag: "02 // Engineering Deliverables",
+              exp_tag: "02 // Career & Bootcamps",
+              exp_heading: "Experience & Bootcamps",
+              exp_cv_link: "Review Full Details in CV",
+              exp1_title: "Software Developer — Apache Spark Open-Source Core",
+              exp1_desc: "Contributed open-source code to Apache Spark, the world's leading distributed big data processing framework. Designing distributed test infrastructure configurations, preventing regressions, and optimizing execution performance.",
+              exp1_role: "Full Time • Distributed Systems",
+              exp2_title: "Software Developer — Enterprise Microservices Architecture (MGM)",
+              exp2_desc: "Developed Spring Boot and Hibernate microservices following Domain-Driven Design (DDD) principles for the enterprise New Accounting Software (MGM). PostgreSQL optimizations and unit/integration test suites.",
+              exp2_role: "Part Time & Intern • Backend",
+              bootcamp_badge: "Bootcamp Graduate",
+              bootcamp1_title: "QA Test Engineer Bootcamp",
+              bootcamp1_desc: "Intensive bootcamp focused on software testing methodologies, automated test architectures, functional and regression test suites, test scenario design, and quality assurance (QA) practices.",
+              bootcamp2_title: "Papara .Net Bootcamp",
+              bootcamp2_desc: "Comprehensive training on the .NET ecosystem, C# programming, and modern web backend architectures. Capstone project: Layered Apartment Management System REST API built with .NET Core and Microsoft SQL Server.",
+              btn_view_cv: "View in CV",
+              projects_tag: "03 // Engineering Deliverables",
               projects_heading: "Featured Projects",
               projects_all_link: "View All GitHub Repositories (32)",
               btn_detail: "Details",
@@ -1019,7 +1636,7 @@
               p5_desc: "Native iOS application built with Swift featuring fluid animations, haptic feedback, and accelerometer shake gesture support.",
               p6_cat: "Security & Web",
               p6_desc: "Client-side password security and complexity analyzer featuring entropy calculations, regex pattern validation, and instant visual feedback.",
-              blog_tag: "03 // Notes & Articles",
+              blog_tag: "04 // Notes & Articles",
               blog_heading: "Technical Articles",
               blog_sub: "Markdown / Static Post Integration",
               btn_read_more: "Read More",
@@ -1035,7 +1652,7 @@
               post3_read: "5 min read",
               post3_title: "Backend Development with Java & Clean Architecture",
               post3_desc: "Transitioning from layered monoliths to Clean Architecture; adhering to the Dependency Inversion principle, isolating domain entities, and designing testable services.",
-              contact_tag: "04 // Connect & Collaborate",
+              contact_tag: "05 // Connect & Collaborate",
               contact_heading: "Get In Touch",
               contact_desc: "Feel free to leave a message for new projects, open-source collaborations, or technical opportunities. I'll get back to you promptly.",
               contact_email_title: "Email",
@@ -1058,7 +1675,25 @@
               form_feedback_msg: "Your message has been sent successfully! I will get back to you soon.",
               modal_close: "Close",
               modal_action_view: "View on GitHub",
-              modal_source_repo: "Source Code"
+              modal_source_repo: "Source Code",
+              nav_cv: "CV",
+              nav_cv_long: "Resume Document (CV)",
+              hero_btn_cv: "View Resume (CV)",
+              cv_banner_title: "Official Curriculum Vitae (Resume)",
+              cv_banner_badge: "Updated / 2026",
+              cv_banner_desc: "Official resume document detailing professional engineering experience at Huawei (Apache Spark), TÜBİTAK BİLGEM YTE, academic credentials, and tech stack.",
+              cv_banner_btn: "View Resume (CV)",
+              cv_modal_title: "Sümeyra Altaş — Curriculum Vitae (Resume)",
+              cv_modal_subtitle: "Official Resume Document & Career History",
+              cv_print_btn: "Print / Save PDF",
+              cv_download_btn: "Print / Download",
+              cv_sec_summary: "SUMMARY",
+              cv_summary_text: "Results-driven Software Engineer with a strong foundation in Java and distributed systems. Experienced in working within Agile environments, building microservice architectures, and developing scalable backend solutions. Proven track record of contributing to major open-source projects, including code optimization and quality improvements in the Apache Spark ecosystem. Passionate about complex problem-solving, clean code principles, and driving high-performance engineering outcomes.",
+              cv_sec_skills: "TECHNICAL SKILLS",
+              cv_sec_exp: "PROFESSIONAL EXPERIENCE",
+              cv_sec_edu: "EDUCATION",
+              cv_sec_learn: "PROJECTS & CONTINUOUS LEARNING",
+              footer_cv: "Resume (CV)"
             }
           };
 
@@ -1198,6 +1833,24 @@
               desc_en: 'Client-side password security and complexity analyzer featuring entropy calculations, regex pattern validation, and instant visual feedback.',
               arch_tr: 'Kullanıcı girdisini hiçbir harici sunucuya iletmeden istemci tarafında matematiksel entropi analizi ve regex kural denetimi gerçekleştirir.',
               arch_en: 'Performs mathematical entropy calculations and regex validation entirely client-side, ensuring zero data leakage to external servers.'
+            },
+            'qatest-bootcamp': {
+              title: 'techcareer.net QA Test Engineer Bootcamp',
+              tech: 'QA Test Automation, Java, Regression Testing, Test Scenarios & Methodologies',
+              github: 'https://github.com/sumeyraltas/QATESTBOOTCAMP',
+              desc_tr: 'Yazılım test metodolojileri, otomatik test mimarileri, fonksiyonel ve regresyon testleri, test senaryolarının kurgulanması ve kalite güvence (QA) süreçleri üzerine yoğunlaştırılmış bootcamp programı.',
+              desc_en: 'Intensive bootcamp focused on software testing methodologies, automated test architectures, functional and regression test suites, test scenario design, and quality assurance (QA) practices.',
+              arch_tr: 'Test senaryolarının oluşturulması, hata raporlama döngüleri, Java ile test otomasyon altyapısı ve uçtan uca yazılım kalite güvence pratiklerini içerir.',
+              arch_en: 'Encompasses end-to-end QA practices, test automation in Java, test scenario modeling, regression coverage, and defect lifecycle management.'
+            },
+            'papara-bootcamp': {
+              title: 'Papara .Net Bootcamp — Apartment Management System',
+              tech: '.NET Core, C#, Microsoft SQL Server, RESTful APIs, Layered Architecture',
+              github: 'https://github.com/sumeyraltas/PaparaBootcampFinalHomework',
+              desc_tr: '.NET ekosistemi ve C# dili odağında bitirme projesi olarak geliştirilen Apartman Yönetim Sistemi (Apartment Management System).',
+              desc_en: 'Comprehensive bootcamp on .NET ecosystem and C#. Final capstone: Layered Apartment Management System developed with .NET Core and Microsoft SQL Server.',
+              arch_tr: 'Katmanlı mimari (Layered Architecture) prensipleri, RESTful API standartları, Microsoft SQL Server veri ilişkileri ve CRUD operasyonları barındırır.',
+              arch_en: 'Built using clean layered architectural principles with .NET Core, complete RESTful CRUD endpoints, and Microsoft SQL Server database schemas.'
             }
           };
 
@@ -1322,10 +1975,56 @@
             document.getElementById('modalOverlay').classList.remove('flex');
           }
 
+          // ==========================================
+          // Özgeçmiş (CV) Modal ve Yazdırma Yönetimi
+          // ==========================================
+          function openCvModal() {
+            const cvModal = document.getElementById('cvModalOverlay');
+            if (cvModal) {
+              cvModal.classList.remove('hidden');
+              cvModal.classList.add('flex');
+              document.body.style.overflow = 'hidden';
+            }
+          }
+
+          function closeCvModal() {
+            const cvModal = document.getElementById('cvModalOverlay');
+            if (cvModal) {
+              cvModal.classList.add('hidden');
+              cvModal.classList.remove('flex');
+              document.body.style.overflow = '';
+            }
+          }
+
+          function printCvDocument() {
+            openCvModal();
+            setTimeout(() => {
+              window.print();
+            }, 100);
+          }
+
           // Modal background click dismiss
           document.getElementById('modalOverlay').addEventListener('click', (e) => {
             if (e.target.id === 'modalOverlay') {
               closeModal();
+            }
+          });
+
+          // CV modal background click dismiss
+          const cvOverlay = document.getElementById('cvModalOverlay');
+          if (cvOverlay) {
+            cvOverlay.addEventListener('click', (e) => {
+              if (e.target.id === 'cvModalOverlay') {
+                closeCvModal();
+              }
+            });
+          }
+
+          // Global ESC key closes any open modal
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+              closeModal();
+              closeCvModal();
             }
           });
 
@@ -1409,6 +2108,7 @@
         <p class="font-code-sm text-code-sm text-on-surface-variant">© 2024 Sümeyra Altaş. All rights reserved.</p>
       </div>
       <div class="flex items-center gap-lg font-code-sm text-code-sm text-on-surface-variant">
+        <button onclick="openCvModal()" class="hover:text-primary transition-colors cursor-pointer" type="button" data-i18n="footer_cv">Özgeçmiş (CV)</button>
         <a class="hover:text-primary transition-colors" href="https://github.com/sumeyraltas" rel="noopener noreferrer" target="_blank">GitHub</a>
         <a class="hover:text-primary transition-colors" href="https://www.linkedin.com/in/sümeyra-altaş-122b63209/" rel="noopener noreferrer" target="_blank">LinkedIn</a>
         <a class="hover:text-primary transition-colors" href="#blog">RSS</a>
