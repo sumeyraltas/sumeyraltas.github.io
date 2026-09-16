@@ -1,0 +1,35 @@
+[
+  {
+    "id": "apache-spark-performans-optimizasyonu",
+    "title": "Apache Spark ile Dağıtık Sistemlerde Performans Optimizasyonu",
+    "slug": "apache-spark-performans-optimizasyonu",
+    "file": "posts/apache-spark-performans-optimizasyonu.md",
+    "date": "18 Mayıs 2024",
+    "readTime": "5 dk okuma",
+    "category": "Büyük Veri & Dağıtık Sistemler",
+    "tags": ["Apache Spark", "Big Data", "Scala", "Performans"],
+    "summary": "Büyük veri kümelerinde shuffle operasyonlarının maliyetini düşürme, doğru partitioning stratejileri, broadcast join kullanımı ve bellek optimizasyonu üzerine pratik notlar."
+  },
+  {
+    "id": "domain-driven-design-mikroservis",
+    "title": "Domain-Driven Design (DDD) ile Ölçeklenebilir Mikroservisler",
+    "slug": "domain-driven-design-mikroservis",
+    "file": "posts/domain-driven-design-mikroservis.md",
+    "date": "12 Kasım 2023",
+    "readTime": "4 dk okuma",
+    "category": "Yazılım Mimarisi",
+    "tags": ["Mikroservisler", "Java", "Spring Boot", "DDD", "PostgreSQL"],
+    "summary": "Kurumsal ölçekteki projelerde Bounded Context sınırlarını belirleme, Aggregate Root ve Value Object kavramlarıyla modüler ve sürdürülebilir servisler inşa etme yaklaşımı."
+  },
+  {
+    "id": "dagitik-sistemlerde-test-otomasyonu",
+    "title": "Büyük Ölçekli Sistemlerde Test Otomasyonu ve Regresyon Önleme",
+    "slug": "dagitik-sistemlerde-test-otomasyonu",
+    "file": "posts/dagitik-sistemlerde-test-otomasyonu.md",
+    "date": "20 Ağustos 2023",
+    "readTime": "4 dk okuma",
+    "category": "Test & Kalite Güvencesi",
+    "tags": ["Test Otomasyonu", "CI/CD", "Kalite", "Maven", "Jenkins"],
+    "summary": "Yüksek işlem hacmine sahip sistemlerde test çerçevelerinin kurgulanması, kod kalitesinin otomatik denetimi ve CI/CD pipeline süreçlerinde regresyonların önlenmesi."
+  }
+]

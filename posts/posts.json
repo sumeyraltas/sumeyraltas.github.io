@@ -1,0 +1,35 @@
+[
+  {
+    "id": "github-pages-ucretsiz-ve-hizli-portfolyo-yayini",
+    "title": "GitHub Pages ile Ücretsiz ve Hızlı Portfolyo Yayını",
+    "slug": "github-pages-ucretsiz-ve-hizli-portfolyo-yayini",
+    "file": "posts/github-pages-ucretsiz-ve-hizli-portfolyo-yayini.md",
+    "date": "12 Mart 2025",
+    "readTime": "4 dk okuma",
+    "category": "#DevOps #GitHubPages",
+    "tags": ["DevOps", "GitHub Pages", "CI/CD"],
+    "summary": "GitHub Pages ve Actions kullanarak özel alan adı bağlama, modern asset derleme ve sıfır sunucu maliyeti ile dakikalar içinde kişisel portfolyo yayına alma rehberi."
+  },
+  {
+    "id": "postgresql-karmasik-sorgu-optimizasyonu-ve-indeksleme",
+    "title": "PostgreSQL'de Karmaşık Sorgu Optimizasyonu ve İndeksleme",
+    "slug": "postgresql-karmasik-sorgu-optimizasyonu-ve-indeksleme",
+    "file": "posts/postgresql-karmasik-sorgu-optimizasyonu-ve-indeksleme.md",
+    "date": "28 Şubat 2025",
+    "readTime": "6 dk okuma",
+    "category": "#Veritabanı #PostgreSQL",
+    "tags": ["PostgreSQL", "İndeksleme", "Performans"],
+    "summary": "B-Tree, GIN indeksleri, EXPLAIN ANALYZE çıktılarını okuma ve yüksek hacimli e-ticaret tablolarında transaction darboğazlarını giderme pratikleri."
+  },
+  {
+    "id": "java-clean-architecture-backend-gelistirme",
+    "title": "Java & Clean Architecture İlkeleriyle Backend Geliştirme",
+    "slug": "java-clean-architecture-backend-gelistirme",
+    "file": "posts/java-clean-architecture-backend-gelistirme.md",
+    "date": "15 Ocak 2025",
+    "readTime": "5 dk okuma",
+    "category": "#Java #Architecture",
+    "tags": ["Java", "Spring Boot", "Clean Architecture"],
+    "summary": "Katmanlı mimariden Clean Architecture'a geçiş; bağımlılıkların tersine çevrilmesi (Dependency Inversion), Domain Modelleri ve test edilebilir servis tasarımı."
+  }
+]
